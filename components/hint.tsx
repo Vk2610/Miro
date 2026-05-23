@@ -3,12 +3,12 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from './ui/tooltip';
+} from '@/components/ui/tooltip';
 
 export interface HintProps {
   label: string;
   children: React.ReactNode;
-  side?: 'top' | 'right' | 'bottom' | 'left';
+  side?: 'top' | 'bottom' | 'left' | 'right';
   align?: 'start' | 'center' | 'end';
   sideOffset?: number;
   alignOffset?: number;
