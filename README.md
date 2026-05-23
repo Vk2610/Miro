@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Collaborative Real-Time Whiteboard (Miro Clone)
 
-## Getting Started
+A modern, real-time collaborative whiteboard application built with Next.js, React, Tailwind CSS, Convex, Clerk, and Liveblocks. It enables multiple users to collaborate on a digital canvas simultaneously, draw shapes, write text, leave sticky notes, and track other users' cursors in real-time.
 
-First, run the development server:
+---
 
+## 🎨 Snapshots
+
+### 1. Board Dashboard
+Below is a mockup of the sleek, modern dashboard page containing the organization switcher, search inputs, and list of boards.
+![Board Dashboard](./public/dashboard_mockup.png)
+
+### 2. Collaborative Whiteboard Canvas
+Below is a mockup of the real-time collaborative canvas displaying shapes, sticky notes, other players' cursors, and the drawing toolbar.
+![Collaborative Whiteboard](./public/whiteboard_mockup.png)
+
+---
+
+## 🚀 Key Features
+
+- **Multiplayer Collaboration**: Real-time cursor tracking, selection boxes, and drawing paths synced instantly across all connected clients via Liveblocks.
+- **Canvas Shapes**: Insert, resize, move, color, and delete elements like Rectangles, Ellipses, Sticky Notes, Text boxes, and Freehand pencil drawings.
+- **Multi-select**: Click-and-drag selection net to group and manipulate multiple layers at once.
+- **History (Undo/Redo)**: Full multiplayer undo/redo stack supported directly through Liveblocks room storage.
+- **Convex Database**: Blazing fast backend database querying and mutations to manage boards, favorites, and metadata.
+- **Clerk Authentication**: Seamless login and multi-tenant organization switching.
+- **Rename & Actions Modal**: Contextual dropdown menus and popups to rename, duplicate, favorite, or delete boards.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js (App Router)](https://nextjs.org/)
+- **Frontend library**: [React](https://react.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Real-Time Database**: [Convex](https://www.convex.dev/)
+- **Collaboration Engine**: [Liveblocks](https://liveblocks.io/)
+- **Authentication**: [Clerk](https://clerk.com/)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env.local` file in the root of the project with the following keys:
+
+```env
+# Convex Deployment Config (Get these from npx convex dev)
+CONVEX_DEPLOYMENT=...
+NEXT_PUBLIC_CONVEX_URL=...
+NEXT_PUBLIC_CONVEX_SITE_URL=...
+
+# Clerk Auth Config
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+
+# Liveblocks Config
+# (Provide this key to run client-side public auth)
+NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY="pk_dev_..."
+# (Optionally provide this key to enable server-side auth route with Clerk profile sync)
+LIVEBLOCKS_SECRET_KEY="sk_dev_..."
+```
+
+---
+
+## 🏁 Getting Started
+
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Start the Convex Backend
+Run the Convex development server in a separate terminal:
+```bash
+npx convex dev
+```
+
+### 3. Run the Next.js Dev Server
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
