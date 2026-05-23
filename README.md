@@ -81,4 +81,4 @@ npx convex dev
 npm run dev
 ```
 
-Open [https://miro-nine.vercel.app/](MIRO app) with your browser to see the result.
+Open [MIRO app](https://miro-nine.vercel.app/) with your browser to see the result.
