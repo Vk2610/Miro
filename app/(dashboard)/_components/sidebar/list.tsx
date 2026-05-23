@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useOrganizationList } from '@clerk/nextjs';
+import { useOrganizationList } from "@clerk/nextjs";
 
-import { Item } from './item';
+import { Item } from "./item";
 
 export const List = () => {
   const { userMemberships } = useOrganizationList({
@@ -12,7 +12,7 @@ export const List = () => {
   });
 
   if (!userMemberships.data?.length) return null;
-
+  
   return (
     <ul className="space-y-4">
       {userMemberships.data?.map((mem) => (

@@ -1,10 +1,14 @@
-'use client';
+"use client";
 
-import { Plus } from 'lucide-react';
-import { CreateOrganization } from '@clerk/nextjs';
+import { Plus } from "lucide-react";
+import { CreateOrganization } from "@clerk/nextjs";
 
-import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog';
-import { Hint } from '@/components/hint';
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Hint } from "@/components/hint";
 
 export const NewButton = () => {
   return (
@@ -23,9 +27,8 @@ export const NewButton = () => {
           </Hint>
         </div>
       </DialogTrigger>
-      <DialogContent className="p-0 bg-transparent border-none max-w-[calc(100%-2rem)] sm:max-w-[480px] w-full max-h-[calc(100vh-2rem)] overflow-y-auto">
-        <DialogTitle className="sr-only">Create Organization</DialogTitle>
-        <CreateOrganization routing="hash" />
+      <DialogContent className="p-0 bg-transparent border-none max-w-[480px]">
+        <CreateOrganization />
       </DialogContent>
     </Dialog>
   );
