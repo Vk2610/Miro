@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
 } from "@/components/ui/dialog";
 
 export const EmptyOrg = () => {
@@ -31,6 +32,7 @@ export const EmptyOrg = () => {
             </Button>
           </DialogTrigger>
           <DialogContent className="p-0 bg-transparent border-none max-w-[480px]">
+            <DialogTitle className="sr-only">Create Organization</DialogTitle>
             <CreateOrganization />
           </DialogContent>
         </Dialog>

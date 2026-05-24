@@ -1,5 +1,4 @@
 import { v } from "convex/values";
-import { getAllOrThrow } from "convex-helpers/server/relationships";
 
 import { query } from "./_generated/server";
 
@@ -16,7 +15,7 @@ export const get = query({
       throw new Error("Unauthorized");
     }
 
-    if (args.favorites) {
+    if (args.favorites === "true") {
       const favoritedBoards = await ctx.db
         .query("userFavorites")
         .withIndex("by_user_org", (q) => 
@@ -29,9 +28,13 @@ export const get = query({
 
       const ids = favoritedBoards.map((b) => b.boardId);
 
-      const boards = await getAllOrThrow(ctx.db, ids);
+      const boards = await Promise.all(
+        ids.map((id) => ctx.db.get(id))
+      );
 
-      return boards.map((board) => ({
+      const validBoards = boards.filter((board) => board !== null);
+
+      return validBoards.map((board) => ({
         ...board,
         isFavorite: true,
       }));

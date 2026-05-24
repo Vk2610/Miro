@@ -32,6 +32,7 @@ export const Participants = ({ boardId }: ParticipantsProps) => {
   const { userId } = useAuth();
 
   const hasMoreUsers = users.length > MAX_SHOWN_USERS;
+  const onlineCount = users.length + 1;
 
   // Retrieve permissions and board details from Convex
   const permissions = useQuery(api.permissions.get, {
@@ -89,10 +90,21 @@ export const Participants = ({ boardId }: ParticipantsProps) => {
     <Dialog>
       <DialogTrigger asChild>
         <button
-          className="absolute h-12 top-2 right-2 bg-white hover:bg-neutral-50 cursor-pointer rounded-md p-3 flex items-center shadow-md select-none border border-neutral-200 transition duration-150 outline-none"
+          className="absolute h-12 top-2 right-2 bg-white hover:bg-neutral-50 cursor-pointer rounded-md p-3 flex items-center justify-center w-12 sm:w-auto sm:justify-start sm:px-3 shadow-md select-none border border-neutral-200 transition duration-150 outline-none"
           title="Click to manage board permissions"
         >
-          <div className="flex gap-x-2">
+          {/* Mobile View: Icon + Badge */}
+          <div className="sm:hidden flex items-center justify-center relative">
+            <Users className="h-5 w-5 text-neutral-800" />
+            {onlineCount > 1 && (
+              <span className="absolute -top-2 -right-2 bg-violet-600 text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center border border-white">
+                {onlineCount}
+              </span>
+            )}
+          </div>
+
+          {/* Desktop View: Avatars List */}
+          <div className="hidden sm:flex gap-x-2">
             {users.slice(0, MAX_SHOWN_USERS).map(({ connectionId, info, presence }) => {
               const name = info?.name || presence?.name || "Teammate";
               const picture = info?.picture || presence?.picture;
@@ -127,7 +139,7 @@ export const Participants = ({ boardId }: ParticipantsProps) => {
       </DialogTrigger>
 
       <DialogContent 
-        className="max-w-[480px] p-6 bg-white rounded-lg shadow-xl"
+        className="max-w-[480px] w-[calc(100%-16px)] sm:w-full p-6 bg-white rounded-lg shadow-xl max-h-[90dvh] overflow-y-auto"
         onPointerDown={(e) => e.stopPropagation()}
         onPointerUp={(e) => e.stopPropagation()}
         onPointerMove={(e) => e.stopPropagation()}

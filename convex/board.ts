@@ -52,19 +52,34 @@ export const remove = mutation({
       throw new Error("Unauthorized");
     }
 
-    const userId = identity.subject;
-
-    const existingFavorite = await ctx.db
+    // Delete all user favorites for this board across all users
+    const favoritedRelations = await ctx.db
       .query("userFavorites")
-      .withIndex("by_user_board", (q) => 
-        q
-          .eq("userId", userId)
-          .eq("boardId", args.id)
-      )
-      .unique();
+      .withIndex("by_board", (q) => q.eq("boardId", args.id))
+      .collect();
 
-    if (existingFavorite) {
-      await ctx.db.delete(existingFavorite._id);
+    for (const favorite of favoritedRelations) {
+      await ctx.db.delete(favorite._id);
+    }
+
+    // Delete all messages for this board
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_board", (q) => q.eq("boardId", args.id))
+      .collect();
+
+    for (const message of messages) {
+      await ctx.db.delete(message._id);
+    }
+
+    // Delete all permissions for this board
+    const permissions = await ctx.db
+      .query("userPermissions")
+      .withIndex("by_board_user", (q) => q.eq("boardId", args.id))
+      .collect();
+
+    for (const permission of permissions) {
+      await ctx.db.delete(permission._id);
     }
 
     await ctx.db.delete(args.id);

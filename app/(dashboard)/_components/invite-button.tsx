@@ -4,7 +4,8 @@ import { OrganizationProfile } from "@clerk/nextjs";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger
+  DialogTrigger,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
@@ -18,6 +19,7 @@ export const InviteButton = () => {
         </Button>
       </DialogTrigger>
       <DialogContent className="p-0 bg-transparent border-none max-w-[880px]">
+        <DialogTitle className="sr-only">Invite Members</DialogTitle>
         <OrganizationProfile routing="hash" />
       </DialogContent>
     </Dialog>

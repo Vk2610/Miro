@@ -191,7 +191,7 @@ export const Chat = ({ boardId }: ChatProps) => {
           onPointerMove={(e) => e.stopPropagation()}
           onWheel={(e) => e.stopPropagation()}
           onKeyDown={(e) => e.stopPropagation()}
-          className="absolute top-2 right-2 bottom-2 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-neutral-200 flex flex-col z-50 overflow-hidden animate-in slide-in-from-right duration-200"
+          className="fixed inset-y-2 left-2 right-2 md:absolute md:left-auto md:right-2 md:w-96 bg-white rounded-lg shadow-xl border border-neutral-200 flex flex-col z-50 overflow-hidden animate-in slide-in-from-right duration-200"
         >
           {/* Header */}
           <div className="bg-violet-700 text-white p-3 flex items-center justify-between shadow-sm">
