@@ -54,7 +54,7 @@ export const Info = ({
               width={40}
             />
             <span className={cn(
-              "font-semibold text-xl ml-2 text-black",
+              "font-semibold text-xl ml-2 text-black hidden sm:block",
               font.className,
             )}>
               Board
@@ -66,10 +66,10 @@ export const Info = ({
       <Hint label="Edit title" side="bottom" sideOffset={10}>
         <Button
           variant="board"
-          className="text-base font-normal px-2"
+          className="text-base font-normal px-2 max-w-[80px] sm:max-w-[180px] truncate block"
           onClick={() => onOpen(data._id, data.title)}
         >
-          {data.title}
+          <span className="truncate block max-w-full">{data.title}</span>
         </Button>
       </Hint>
       <TabSeparator />

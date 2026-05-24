@@ -488,7 +488,7 @@ export const Canvas = ({
 
   return (
     <main
-      className="h-full w-full relative bg-neutral-100 touch-none"
+      className="fixed inset-0 h-[100dvh] w-[100dvw] overflow-hidden bg-neutral-100 touch-none select-none"
     >
       <Info boardId={boardId} />
       <Participants boardId={boardId} />
@@ -518,7 +518,7 @@ export const Canvas = ({
       />
       <Chat boardId={boardId} />
       <svg
-        className="h-[100vh] w-[100vw]"
+        className="h-full w-full"
         onWheel={onWheel}
         onPointerMove={onPointerMove}
         onPointerLeave={onPointerLeave}
