@@ -159,7 +159,7 @@ export const Participants = ({ boardId }: ParticipantsProps) => {
 
               return (
                 <div
-                  key={user.id}
+                  key={user.connectionId}
                   className="flex items-center justify-between p-2 hover:bg-neutral-50 rounded-lg transition"
                 >
                   <div className="flex items-center gap-x-2.5">
