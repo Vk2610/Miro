@@ -58,3 +58,36 @@ export const send = mutation({
     return message;
   },
 });
+
+export const remove = mutation({
+  args: {
+    id: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
+    const message = await ctx.db.get(args.id);
+
+    if (!message) {
+      throw new Error("Message not found");
+    }
+
+    const board = await ctx.db.get(message.boardId);
+
+    if (!board) {
+      throw new Error("Board not found");
+    }
+
+    // Only the board creator can delete messages
+    if (board.authorId !== identity.subject) {
+      throw new Error("Unauthorized: Only the board administrator can delete messages");
+    }
+
+    await ctx.db.delete(args.id);
+  },
+});
+

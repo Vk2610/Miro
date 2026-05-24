@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef, useMemo, FormEvent } from "react";
 import { useQuery, useMutation } from "convex/react";
-import { MessageSquare, Send, X, Loader2 } from "lucide-react";
+import { MessageSquare, Send, X, Loader2, Trash2 } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
 
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useSelf, useOthers } from "@/liveblocks.config";
+import { useOthers } from "@/liveblocks.config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -41,11 +42,9 @@ export const Chat = ({ boardId }: ChatProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
-  
-  // Track last read message count to show unread badge
   const [lastReadCount, setLastReadCount] = useState(0);
-
-  const currentUser = useSelf();
+  
+  const { userId } = useAuth();
   const others = useOthers();
   const onlineCount = others.length + 1;
 
@@ -54,7 +53,14 @@ export const Chat = ({ boardId }: ChatProps) => {
     boardId: boardId as Id<"boards">,
   });
 
+  const board = useQuery(api.board.get, {
+    id: boardId as Id<"boards">,
+  });
+
   const sendMessage = useMutation(api.messages.send);
+  const removeMessage = useMutation(api.messages.remove);
+
+  const isAdmin = board?.authorId === userId;
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -134,7 +140,17 @@ export const Chat = ({ boardId }: ChatProps) => {
   // Check if sender is the current user. 
   // We compare the userId with our own Clerk user ID from currentUser metadata.
   const isMe = (msgUserId: string) => {
-    return currentUser?.id === msgUserId;
+    return userId === msgUserId;
+  };
+
+  const handleDelete = async (messageId: string) => {
+    try {
+      await removeMessage({ id: messageId as Id<"messages"> });
+      toast.success("Message deleted");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete message");
+    }
   };
 
   return (
@@ -148,7 +164,7 @@ export const Chat = ({ boardId }: ChatProps) => {
         >
           <MessageSquare className="h-5 w-5 group-hover:scale-105 transition-transform" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 bg-[#00a884] text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border border-white animate-in zoom-in">
+            <span className="absolute -top-1.5 -right-1.5 bg-violet-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center border border-white animate-in zoom-in">
               {unreadCount}
             </span>
           )}
@@ -168,15 +184,15 @@ export const Chat = ({ boardId }: ChatProps) => {
           className="absolute top-2 right-2 bottom-2 w-80 md:w-96 bg-white rounded-lg shadow-xl border border-neutral-200 flex flex-col z-50 overflow-hidden animate-in slide-in-from-right duration-200"
         >
           {/* Header */}
-          <div className="bg-[#008069] text-white p-3 flex items-center justify-between shadow-sm">
+          <div className="bg-violet-700 text-white p-3 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-x-2">
-              <div className="bg-[#00a884] p-1.5 rounded-full">
+              <div className="bg-violet-600 p-1.5 rounded-full">
                 <MessageSquare className="h-5 w-5 text-white" />
               </div>
               <div>
                 <h3 className="font-semibold text-sm leading-tight">Board Chat</h3>
-                <span className="text-[11px] text-emerald-100 flex items-center gap-x-1">
-                  <span className="h-1.5 w-1.5 bg-emerald-300 rounded-full inline-block animate-pulse" />
+                <span className="text-[11px] text-violet-100 flex items-center gap-x-1">
+                  <span className="h-1.5 w-1.5 bg-emerald-400 rounded-full inline-block animate-pulse" />
                   {onlineCount} {onlineCount === 1 ? "user" : "users"} online
                 </span>
               </div>
@@ -193,15 +209,15 @@ export const Chat = ({ boardId }: ChatProps) => {
 
           {/* Messages Area (WhatsApp doodle pattern vibe) */}
           <div 
-            className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#efeae2] relative"
+            className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#faf5ff] relative"
             style={{
-              backgroundImage: `radial-gradient(circle, #dfdcd6 1px, transparent 1px)`,
-              backgroundSize: "20px 20px"
+              backgroundImage: `radial-gradient(circle, #edd8ff 1.5px, transparent 1.5px)`,
+              backgroundSize: "24px 24px"
             }}
           >
             {rawMessages === undefined ? (
               <div className="flex flex-col items-center justify-center h-full gap-y-2 text-neutral-500">
-                <Loader2 className="h-6 w-6 animate-spin text-[#008069]" />
+                <Loader2 className="h-6 w-6 animate-spin text-violet-600" />
                 <span className="text-xs">Loading chat history...</span>
               </div>
             ) : messages.length === 0 ? (
@@ -217,10 +233,22 @@ export const Chat = ({ boardId }: ChatProps) => {
                 return (
                   <div
                     key={msg._id}
-                    className={`flex items-start gap-x-2 ${
+                    className={`flex items-start gap-x-2 group/bubble ${
                       isSenderMe ? "justify-end" : "justify-start"
                     }`}
                   >
+                    {/* Trash Button for Admin */}
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(msg._id)}
+                        className={`opacity-0 group-hover/bubble:opacity-100 transition-opacity p-1 text-neutral-400 hover:text-rose-500 rounded-md shrink-0 self-center ${
+                          isSenderMe ? "order-first mr-1" : "order-last ml-1"
+                        }`}
+                        title="Delete message"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                     {/* Other User Avatar */}
                     {!isSenderMe && (
                       <Avatar className="h-7 w-7 border border-neutral-200/80 shadow-sm mt-0.5">
@@ -235,7 +263,7 @@ export const Chat = ({ boardId }: ChatProps) => {
                     <div
                       className={`relative max-w-[70%] px-3 py-1.5 shadow-sm border text-[13px] leading-relaxed flex flex-col ${
                         isSenderMe
-                          ? "bg-[#d9fdd3] text-[#303030] border-[#d9fdd3] rounded-l-lg rounded-br-lg rounded-tr-none"
+                          ? "bg-[#f3e8ff] text-violet-950 border-[#e9d5ff] rounded-l-lg rounded-br-lg rounded-tr-none"
                           : "bg-white text-[#303030] border-neutral-100 rounded-r-lg rounded-bl-lg rounded-tl-none"
                       }`}
                     >
@@ -273,13 +301,13 @@ export const Chat = ({ boardId }: ChatProps) => {
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Type a message..."
               disabled={isSending}
-              className="flex-1 bg-white border border-neutral-200 rounded-full px-4 h-9 text-sm focus-visible:ring-1 focus-visible:ring-[#008069] focus-visible:ring-offset-0 placeholder:text-neutral-400"
+              className="flex-1 bg-white border border-neutral-200 rounded-full px-4 h-9 text-sm focus-visible:ring-1 focus-visible:ring-violet-600 focus-visible:ring-offset-0 placeholder:text-neutral-400"
             />
             <Button
               type="submit"
               disabled={!inputValue.trim() || isSending}
               size="icon"
-              className="h-9 w-9 rounded-full bg-[#00a884] hover:bg-[#008f72] text-white shrink-0 shadow-sm transition duration-150 disabled:opacity-50 disabled:bg-neutral-300"
+              className="h-9 w-9 rounded-full bg-violet-600 hover:bg-violet-700 text-white shrink-0 shadow-sm transition duration-150 disabled:opacity-50 disabled:bg-neutral-300"
             >
               {isSending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
