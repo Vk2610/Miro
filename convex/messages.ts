@@ -35,6 +35,17 @@ export const send = mutation({
       throw new Error("Unauthorized");
     }
 
+    const userPermission = await ctx.db
+      .query("userPermissions")
+      .withIndex("by_board_user", (q) =>
+        q.eq("boardId", args.boardId).eq("userId", identity.subject)
+      )
+      .unique();
+
+    if (userPermission && !userPermission.canChat) {
+      throw new Error("You have been restricted from chatting in this board by the administrator");
+    }
+
     const content = args.content.trim();
 
     if (!content) {

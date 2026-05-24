@@ -32,5 +32,12 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_board", ["boardId"]),
+  userPermissions: defineTable({
+    boardId: v.id("boards"),
+    userId: v.string(),
+    canAnnotate: v.boolean(),
+    canChat: v.boolean(),
+  })
+    .index("by_board_user", ["boardId", "userId"]),
 });
 

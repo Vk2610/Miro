@@ -26,6 +26,9 @@ export const Room = ({
         selection: [],
         pencilDraft: null,
         penColor: null,
+        name: undefined,
+        picture: undefined,
+        userId: undefined,
       }}
       initialStorage={{
         layers: new LiveMap<string, LiveObject<Layer>>(),

@@ -12,6 +12,7 @@ import {
   useStorage,
   useOthersMapped,
   useSelf,
+  useUpdateMyPresence,
 } from "@/liveblocks.config";
 import { 
   colorToCss,
@@ -43,6 +44,11 @@ import { SelectionBox } from "./selection-box";
 import { SelectionTools } from "./selection-tools";
 import { CursorsPresence } from "./cursors-presence";
 import { Chat } from "./chat";
+import { useQuery } from "convex/react";
+import { useAuth, useUser } from "@clerk/nextjs";
+import { Lock } from "lucide-react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 const MAX_LAYERS = 100;
 
@@ -53,7 +59,28 @@ interface CanvasProps {
 export const Canvas = ({
   boardId,
 }: CanvasProps) => {
+  const { userId } = useAuth();
+  const { user } = useUser();
+  const updateMyPresence = useUpdateMyPresence();
+
+  useEffect(() => {
+    if (user) {
+      updateMyPresence({
+        name: user.firstName || "Teammate",
+        picture: user.imageUrl,
+        userId: user.id,
+      });
+    }
+  }, [user, updateMyPresence]);
+
   const layerIds = useStorage((root) => root.layerIds);
+
+  const permissions = useQuery(api.permissions.get, { boardId: boardId as Id<"boards"> });
+  const canAnnotate = useMemo(() => {
+    if (!permissions || !userId) return true;
+    const record = permissions.find((p) => p.userId === userId);
+    return record ? record.canAnnotate : true;
+  }, [permissions, userId]);
 
   const pencilDraft = useSelf((me) => me.presence.pencilDraft);
   const [canvasState, setCanvasState] = useState<CanvasState>({
@@ -295,6 +322,11 @@ export const Canvas = ({
 
     const current = pointerEventToCanvasPoint(e, camera);
 
+    if (!canAnnotate) {
+      setMyPresence({ cursor: current });
+      return;
+    }
+
     if (canvasState.mode === CanvasMode.Pressing) {
       startMultiSelection(current, canvasState.origin);
     } else if (canvasState.mode === CanvasMode.SelectionNet) {
@@ -317,6 +349,7 @@ export const Canvas = ({
     translateSelectedLayers,
     startMultiSelection,
     updateSelectionNet,
+    canAnnotate,
   ]);
 
   const onPointerLeave = useMutation(({ setMyPresence }) => {
@@ -326,6 +359,7 @@ export const Canvas = ({
   const onPointerDown = useCallback((
     e: React.PointerEvent,
   ) => {
+    if (!canAnnotate) return;
     const point = pointerEventToCanvasPoint(e, camera);
 
     if (canvasState.mode === CanvasMode.Inserting) {
@@ -338,12 +372,13 @@ export const Canvas = ({
     }
 
     setCanvasState({ origin: point, mode: CanvasMode.Pressing });
-  }, [camera, canvasState.mode, setCanvasState, startDrawing]);
+  }, [camera, canvasState.mode, setCanvasState, startDrawing, canAnnotate]);
 
   const onPointerUp = useMutation((
     {},
     e
   ) => {
+    if (!canAnnotate) return;
     const point = pointerEventToCanvasPoint(e, camera);
 
     if (
@@ -373,7 +408,8 @@ export const Canvas = ({
     history,
     insertLayer,
     unselectLayers,
-    insertPath
+    insertPath,
+    canAnnotate,
   ]);
 
   const selections = useOthersMapped((other) => other.presence.selection);
@@ -431,6 +467,7 @@ export const Canvas = ({
         //   break;
         case "z": {
           if (e.ctrlKey || e.metaKey) {
+            if (!canAnnotate) break;
             if (e.shiftKey) {
               history.redo();
             } else {
@@ -447,22 +484,34 @@ export const Canvas = ({
     return () => {
       document.removeEventListener("keydown", onKeyDown)
     }
-  }, [deleteLayers, history]);
+  }, [deleteLayers, history, canAnnotate]);
 
   return (
     <main
       className="h-full w-full relative bg-neutral-100 touch-none"
     >
       <Info boardId={boardId} />
-      <Participants />
-      <Toolbar
-        canvasState={canvasState}
-        setCanvasState={setCanvasState}
-        canRedo={canRedo}
-        canUndo={canUndo}
-        undo={history.undo}
-        redo={history.redo}
-      />
+      <Participants boardId={boardId} />
+      {!canAnnotate && (
+        <div className="absolute top-[50%] -translate-y-[50%] left-2 bg-white rounded-md p-3 shadow-md flex flex-col items-center gap-y-2 border border-neutral-200 animate-in fade-in duration-200">
+          <div className="bg-amber-100 text-amber-800 p-2 rounded-full">
+            <Lock className="h-5 w-5" />
+          </div>
+          <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider text-center max-w-[80px]">
+            View Only
+          </span>
+        </div>
+      )}
+      {canAnnotate && (
+        <Toolbar
+          canvasState={canvasState}
+          setCanvasState={setCanvasState}
+          canRedo={canRedo}
+          canUndo={canUndo}
+          undo={history.undo}
+          redo={history.redo}
+        />
+      )}
       <SelectionTools
         camera={camera}
         setLastUsedColor={setLastUsedColor}

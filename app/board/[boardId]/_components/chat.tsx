@@ -57,6 +57,16 @@ export const Chat = ({ boardId }: ChatProps) => {
     id: boardId as Id<"boards">,
   });
 
+  const permissions = useQuery(api.permissions.get, {
+    boardId: boardId as Id<"boards">,
+  });
+
+  const canChat = useMemo(() => {
+    if (!permissions || !userId) return true;
+    const record = permissions.find((p) => p.userId === userId);
+    return record ? record.canChat : true;
+  }, [permissions, userId]);
+
   const sendMessage = useMutation(api.messages.send);
   const removeMessage = useMutation(api.messages.remove);
 
@@ -299,13 +309,13 @@ export const Chat = ({ boardId }: ChatProps) => {
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Type a message..."
-              disabled={isSending}
+              placeholder={canChat ? "Type a message..." : "Chat restricted by administrator..."}
+              disabled={isSending || !canChat}
               className="flex-1 bg-white border border-neutral-200 rounded-full px-4 h-9 text-sm focus-visible:ring-1 focus-visible:ring-violet-600 focus-visible:ring-offset-0 placeholder:text-neutral-400"
             />
             <Button
               type="submit"
-              disabled={!inputValue.trim() || isSending}
+              disabled={!inputValue.trim() || isSending || !canChat}
               size="icon"
               className="h-9 w-9 rounded-full bg-violet-600 hover:bg-violet-700 text-white shrink-0 shadow-sm transition duration-150 disabled:opacity-50 disabled:bg-neutral-300"
             >
