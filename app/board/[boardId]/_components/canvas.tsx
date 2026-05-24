@@ -42,6 +42,7 @@ import { LayerPreview } from "./layer-preview";
 import { SelectionBox } from "./selection-box";
 import { SelectionTools } from "./selection-tools";
 import { CursorsPresence } from "./cursors-presence";
+import { Chat } from "./chat";
 
 const MAX_LAYERS = 100;
 
@@ -466,6 +467,7 @@ export const Canvas = ({
         camera={camera}
         setLastUsedColor={setLastUsedColor}
       />
+      <Chat boardId={boardId} />
       <svg
         className="h-[100vh] w-[100vw]"
         onWheel={onWheel}

@@ -22,5 +22,15 @@ export default defineSchema({
     .index("by_board", ["boardId"])
     .index("by_user_org", ["userId", "orgId"])
     .index("by_user_board", ["userId", "boardId"])
-    .index("by_user_board_org", ["userId", "boardId", "orgId"])
+    .index("by_user_board_org", ["userId", "boardId", "orgId"]),
+  messages: defineTable({
+    boardId: v.id("boards"),
+    userId: v.string(),
+    userName: v.string(),
+    userPicture: v.optional(v.string()),
+    content: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_board", ["boardId"]),
 });
+
